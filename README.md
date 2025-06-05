@@ -13,7 +13,7 @@ This project is fully open-source and designed with scalability in mind. Future 
 ---
 
 ## 📱 App Preview
-
+![Pomodoro](https://github.com/user-attachments/assets/f8b04a8f-3464-4c54-82e2-27bd69758200)
 
 ---
 
