@@ -14,7 +14,7 @@ Este projeto é totalmente open-source e foi desenvolvido com foco em escalabili
 
 ## 📱 Visualização do App
 
-!
+> ![Pomodoro](https://github.com/user-attachments/assets/fa8608f0-f9cd-431c-8107-f9fc646fad51)
 
 ---
 
