@@ -11,9 +11,6 @@ const HISTORY_KEY  = 'foco_history_v2';
 const STATS_KEY    = 'foco_stats_v2';
 const TASKS_KEY    = 'foco_tasks_v2';
 
-// ─── Modos válidos ────────────────────────────────────────
-const VALID_MODES = ['work', 'short', 'long'];
-
 // ─── Valores padrão (fonte de verdade para reset/merge) ──
 const DEFAULT_SETTINGS = {
   workMins:        25,
@@ -22,40 +19,55 @@ const DEFAULT_SETTINGS = {
   sessionsPerCycle: 4,
   autoBreak:       false,
   autoWork:        false,
-  notifications:   true
+  notifications:   true,
+  theme:           'dark'   // 'dark' | 'light'
 };
 
 // ─── Configurações do usuário ────────────────────────────
-// Sempre inicializa a partir dos defaults — nunca referencia
-// diretamente DEFAULT_SETTINGS para não compartilhar a mesma referência.
 let settings = { ...DEFAULT_SETTINGS };
 
 // ─── Estado da sessão atual ──────────────────────────────
 let state = {
-  mode:            'work',  // 'work' | 'short' | 'long'
-  running:         false,
-  remaining:       0,       // segundos restantes
-  session:         1,       // sessão atual dentro do ciclo
-  completedToday:  0,
-  focusMinsToday:  0,
-  streak:          0,
-  lastDate:        ''       // data da última sessão (toDateString)
+  mode:           'work',   // 'work' | 'short' | 'long'
+  running:        false,
+  remaining:      0,        // segundos restantes
+  session:        1,        // sessão atual dentro do ciclo
+  completedToday: 0,
+  focusMinsToday: 0,
+  streak:         0,
+  lastDate:       ''        // data da última sessão (toDateString)
 };
 
 // ─── Dados de tarefas e histórico ────────────────────────
-// Usamos arrays mutados in-place (.push, .splice) para que
-// módulos que guardam referência (ex: modals.js) nunca
-// apontem para um array orfão após uma reatribuição.
+// Arrays mutados in-place para preservar referências externas
 let tasks        = [];
 let history      = [];
 let activeTaskId = null;
 
-// ─── Mapa de acentos por modo ────────────────────────────
-const ACCENTS = {
-  work:  { acc: '#b8860b', glow: 'rgba(184,134,11,0.10)',  label: 'Foco'        },
-  short: { acc: '#1a9e68', glow: 'rgba(26,158,104,0.10)',  label: 'Pausa Curta' },
-  long:  { acc: '#1a72b8', glow: 'rgba(26,114,184,0.10)',  label: 'Pausa Longa' }
+// ─── Paletas de acentos por tema ─────────────────────────
+// Espelham exatamente os tokens CSS de base.css.
+// getAccents() é chamada em ui.js sempre que updateAccent() roda,
+// garantindo que a cor injetada via JS bata com o tema ativo.
+const ACCENT_PALETTES = {
+  dark: {
+    work:  { acc: '#e8c547', glow: 'rgba(232,197,71,0.18)',  label: 'Foco'        },
+    short: { acc: '#5ce8a4', glow: 'rgba(92,232,164,0.18)',  label: 'Pausa Curta' },
+    long:  { acc: '#5cb8e8', glow: 'rgba(92,184,232,0.18)',  label: 'Pausa Longa' }
+  },
+  light: {
+    work:  { acc: '#b8860b', glow: 'rgba(184,134,11,0.10)',  label: 'Foco'        },
+    short: { acc: '#1a9e68', glow: 'rgba(26,158,104,0.10)',  label: 'Pausa Curta' },
+    long:  { acc: '#1a72b8', glow: 'rgba(26,114,184,0.10)',  label: 'Pausa Longa' }
+  }
 };
+
+/**
+ * Retorna o mapa de acentos { work, short, long } para o tema atual.
+ * Usar sempre esta função — nunca referenciar ACCENT_PALETTES diretamente.
+ */
+function getAccents() {
+  return ACCENT_PALETTES[settings.theme] || ACCENT_PALETTES.dark;
+}
 
 // ─── Limites das configurações numéricas ─────────────────
 const SETTING_LIMITS = {
@@ -68,16 +80,14 @@ const SETTING_LIMITS = {
 // ─── Sanitização ─────────────────────────────────────────
 
 /**
- * Valida e sanitiza um objeto de settings carregado do
- * localStorage, garantindo que todos os valores estejam
- * dentro dos limites aceitáveis.
- * @param {object} raw  Objeto bruto do JSON.parse
- * @returns {object}    Settings sanitizado, mesclado com defaults
+ * Valida e sanitiza um objeto de settings carregado do localStorage.
+ * @param {object} raw
+ * @returns {object}
  */
 function _sanitizeSettings(raw) {
   const out = { ...DEFAULT_SETTINGS };
 
-  // Campos numéricos — aplica limites definidos em SETTING_LIMITS
+  // Campos numéricos
   for (const [key, [min, max]] of Object.entries(SETTING_LIMITS)) {
     if (typeof raw[key] === 'number' && isFinite(raw[key])) {
       out[key] = Math.max(min, Math.min(max, Math.round(raw[key])));
@@ -91,12 +101,16 @@ function _sanitizeSettings(raw) {
     }
   }
 
+  // Tema — aceita apenas valores conhecidos
+  if (raw.theme === 'light' || raw.theme === 'dark') {
+    out.theme = raw.theme;
+  }
+
   return out;
 }
 
 /**
  * Valida um array de tarefas carregado do localStorage.
- * Descarta entradas malformadas em vez de deixar o app quebrar.
  * @param {any[]} raw
  * @returns {{ id: number, text: string, done: boolean, pomos: number }[]}
  */
@@ -143,12 +157,10 @@ function _sanitizeHistory(raw) {
 
 /**
  * Carrega e sanitiza todos os dados do localStorage para as
- * variáveis globais de estado. Leitura feita UMA única vez;
- * checkDate() usa os valores já em memória, não relê o storage.
+ * variáveis globais de estado.
  */
 function loadPersisted() {
   try {
-    // Settings
     const rawSettings = localStorage.getItem(SETTINGS_KEY);
     if (rawSettings) {
       const parsed = JSON.parse(rawSettings);
@@ -157,17 +169,13 @@ function loadPersisted() {
       }
     }
 
-    // Histórico — trunca em memória também (FIX: antes só truncava no save)
     const rawHistory = localStorage.getItem(HISTORY_KEY);
     if (rawHistory) {
-      const parsed = JSON.parse(rawHistory);
-      const sanitized = _sanitizeHistory(parsed);
-      // Muta in-place para não quebrar referências externas
+      const sanitized = _sanitizeHistory(JSON.parse(rawHistory));
       history.length = 0;
       history.push(...sanitized.slice(-100));
     }
 
-    // Stats + lastDate lidos para o state (checkDate usa state.lastDate)
     const rawStats = localStorage.getItem(STATS_KEY);
     if (rawStats) {
       const data = JSON.parse(rawStats);
@@ -175,26 +183,22 @@ function loadPersisted() {
         ? Math.floor(data.completedToday) : 0;
       state.focusMinsToday = (typeof data.focusMinsToday === 'number' && data.focusMinsToday >= 0)
         ? Math.floor(data.focusMinsToday) : 0;
-      state.streak         = (typeof data.streak === 'number' && data.streak >= 0)
+      state.streak   = (typeof data.streak === 'number' && data.streak >= 0)
         ? Math.floor(data.streak) : 0;
-      state.lastDate       = typeof data.lastDate === 'string' ? data.lastDate : '';
+      state.lastDate = typeof data.lastDate === 'string' ? data.lastDate : '';
     }
 
-    // Tarefas — muta in-place
     const rawTasks = localStorage.getItem(TASKS_KEY);
     if (rawTasks) {
-      const parsed = JSON.parse(rawTasks);
-      const sanitized = _sanitizeTasks(parsed);
+      const sanitized = _sanitizeTasks(JSON.parse(rawTasks));
       tasks.length = 0;
       tasks.push(...sanitized);
-      // Restaura activeTaskId para a primeira tarefa não concluída
       const firstActive = tasks.find(t => !t.done);
       activeTaskId = firstActive ? firstActive.id : null;
     }
 
   } catch (e) {
     console.warn('[foco] Erro ao carregar dados:', e);
-    // Garante estado limpo se o parse falhar completamente
     settings     = { ...DEFAULT_SETTINGS };
     tasks.length   = 0;
     history.length = 0;
@@ -202,12 +206,10 @@ function loadPersisted() {
 }
 
 /**
- * Persiste settings, histórico (limitado), stats e tarefas.
- * Também trunca o array history em memória para manter consistência.
+ * Persiste settings, histórico, stats e tarefas.
  */
 function savePersisted() {
   try {
-    // Trunca history em memória antes de salvar (FIX: antes só truncava no JSON)
     if (history.length > 100) {
       history.splice(0, history.length - 100);
     }
@@ -227,48 +229,39 @@ function savePersisted() {
 }
 
 /**
- * Reseta contadores diários usando state.lastDate (já em memória),
- * sem releitura do localStorage.
- *
- * Regra de streak:
- * - Se a última sessão foi HOJE → mantém streak (já incrementado em timer.js)
- * - Se a última sessão foi ONTEM → mantém streak (usuário continua a sequência)
- * - Se a última sessão foi há 2+ dias → zera streak (sequência quebrada)
+ * Reseta contadores diários se o dia mudou.
+ * Zera streak se a sequência foi quebrada (2+ dias sem uso).
  */
 function checkDate() {
   const today     = new Date().toDateString();
   const yesterday = new Date(Date.now() - 86400000).toDateString();
   const last      = state.lastDate;
 
-  if (!last || last === today) return; // primeiro uso ou mesmo dia
+  if (!last || last === today) return;
 
-  // Zera contadores diários independente do caso
   state.completedToday = 0;
   state.focusMinsToday = 0;
 
-  // Zera streak se a sequência foi quebrada (FIX: antes nunca zerava)
   if (last !== yesterday) {
     state.streak = 0;
   }
 
-  // Atualiza lastDate em memória para evitar reset duplo na mesma sessão
   state.lastDate = today;
 }
 
 /**
  * Retorna a duração em segundos para um dado modo.
- * Retorna o modo 'work' como fallback se mode for inválido
- * para evitar NaN no timer (FIX: antes retornava undefined * 60).
+ * Usa 'work' como fallback para evitar NaN no timer.
  * @param {'work'|'short'|'long'} mode
  * @returns {number}
  */
 function getDuration(mode) {
-  const durationMap = {
+  const map = {
     work:  settings.workMins,
     short: settings.shortMins,
     long:  settings.longMins
   };
-  const mins = durationMap[mode];
+  const mins = map[mode];
   if (typeof mins !== 'number' || !isFinite(mins)) {
     console.warn(`[foco] getDuration: modo inválido "${mode}", usando 'work' como fallback.`);
     return settings.workMins * 60;

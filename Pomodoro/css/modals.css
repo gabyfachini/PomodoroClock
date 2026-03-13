@@ -6,8 +6,9 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.25);
-  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 100;
   display: flex;
   align-items: flex-end;
@@ -18,20 +19,22 @@
 }
 .modal-overlay.open { opacity: 1; pointer-events: all; }
 
+/* No tema claro o overlay fica mais leve */
+:root[data-theme="light"] .modal-overlay { background: rgba(0,0,0,0.22); }
+
 /* ─── Sheet ─────────────────────────────────────────────── */
 .modal {
   width: 100%;
   max-width: 480px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-top: none;
   border-radius: 24px 24px 0 0;
   padding: 0 0 env(safe-area-inset-bottom, 16px);
   transform: translateY(40px);
   transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
   max-height: 85dvh;
   overflow-y: auto;
-  box-shadow: 0 -4px 32px rgba(0,0,0,0.10), 0 -1px 6px rgba(0,0,0,0.06);
+  box-shadow: 0 -4px 40px rgba(0,0,0,0.25);
 }
 .modal-overlay.open .modal { transform: translateY(0); }
 
@@ -104,7 +107,7 @@
   transition: all 0.15s;
   line-height: 1;
   padding-bottom: 1px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-sm);
 }
 .num-btn:hover { border-color: var(--current-accent); color: var(--current-accent); }
 
@@ -128,9 +131,9 @@
 }
 .toggle-row:last-child { border-bottom: none; }
 
-.toggle-info                { display: flex; flex-direction: column; gap: 2px; }
-.toggle-name                { font-size: 0.82rem; color: var(--text); }
-.toggle-desc                { font-size: 0.68rem; color: var(--text-muted); }
+.toggle-info { display: flex; flex-direction: column; gap: 2px; }
+.toggle-name { font-size: 0.82rem; color: var(--text); }
+.toggle-desc { font-size: 0.68rem; color: var(--text-muted); }
 
 .toggle {
   width: 44px; height: 26px;
@@ -151,7 +154,7 @@
   background: #fff;
   border-radius: 50%;
   transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.20);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
 }
 .toggle.on .toggle-knob { transform: translateX(18px); }
 
@@ -172,7 +175,7 @@
   text-transform: uppercase;
   transition: all 0.2s;
 }
-.modal-close-btn:hover { border-color: rgba(0,0,0,0.18); background: var(--surface); }
+.modal-close-btn:hover { border-color: var(--current-accent); background: var(--surface); }
 
 /* ─── Histórico ─────────────────────────────────────────── */
 .history-list { padding: 12px 24px 0; }

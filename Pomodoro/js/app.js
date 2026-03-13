@@ -34,6 +34,7 @@ document.addEventListener('keydown', e => {
     case 'Digit1': switchMode('work');                     break;
     case 'Digit2': switchMode('short');                    break;
     case 'Digit3': switchMode('long');                     break;
+    case 'KeyT':   toggleTheme();                          break;
   }
 });
 

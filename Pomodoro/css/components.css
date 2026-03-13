@@ -14,10 +14,18 @@
   transition: all 0.2s;
   font-size: 14px;
   position: relative;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-sm);
 }
-.icon-btn:hover  { background: var(--surface2); color: var(--text); border-color: rgba(0,0,0,0.15); }
-.icon-btn.active { color: var(--current-accent); border-color: var(--current-accent); background: var(--current-glow); }
+.icon-btn:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--current-accent);
+}
+.icon-btn.active {
+  color: var(--current-accent);
+  border-color: var(--current-accent);
+  background: var(--current-glow);
+}
 
 /* ─── Abas de modo ──────────────────────────────────────── */
 .mode-tabs {
@@ -29,7 +37,7 @@
   gap: 2px;
   width: 100%;
   flex-shrink: 0;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-sm);
 }
 
 .mode-tab {
@@ -52,7 +60,7 @@
   background: var(--surface2);
   color: var(--current-accent);
   border: 1px solid var(--current-accent);
-  box-shadow: 0 0 0 3px var(--current-glow);
+  box-shadow: 0 0 12px var(--current-glow);
 }
 
 /* ─── Anel do timer ─────────────────────────────────────── */
@@ -66,7 +74,7 @@
 .ring-svg {
   width: 100%; height: 100%;
   transform: rotate(-90deg);
-  filter: drop-shadow(0 2px 16px var(--current-glow));
+  filter: drop-shadow(0 0 20px var(--current-glow));
   transition: filter 0.5s;
 }
 
@@ -139,9 +147,9 @@
   cursor: pointer;
   font-size: 16px;
   transition: all 0.2s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  box-shadow: var(--shadow-sm);
 }
-.ctrl-btn:hover  { background: var(--surface2); color: var(--text); border-color: rgba(0,0,0,0.15); }
+.ctrl-btn:hover  { background: var(--surface2); color: var(--text); border-color: var(--current-accent); }
 .ctrl-btn:active { transform: scale(0.93); }
 
 .play-btn {
@@ -154,9 +162,9 @@
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
-  box-shadow: 0 4px 16px var(--current-glow), 0 1px 3px rgba(0,0,0,0.10);
+  box-shadow: 0 0 24px var(--current-glow), var(--shadow-sm);
 }
-.play-btn:hover  { transform: scale(1.05); box-shadow: 0 6px 24px var(--current-glow), 0 2px 6px rgba(0,0,0,0.12); }
+.play-btn:hover  { transform: scale(1.05); box-shadow: 0 0 36px var(--current-glow), var(--shadow-md); }
 .play-btn:active { transform: scale(0.95); }
 .play-btn svg    { transition: transform 0.15s; }
 
@@ -177,18 +185,18 @@
 .dot.done {
   background: var(--current-accent);
   border-color: var(--current-accent);
-  box-shadow: 0 0 6px var(--current-glow);
+  box-shadow: 0 0 8px var(--current-glow);
 }
 .dot.current {
   background: var(--current-accent);
   border-color: var(--current-accent);
-  opacity: 0.45;
+  opacity: 0.5;
   animation: pulse-dot 1.2s ease-in-out infinite;
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 0.45; }
-  50%       { opacity: 1;    }
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1;   }
 }
 
 /* ─── Cards de stats ────────────────────────────────────── */
@@ -208,7 +216,7 @@
   flex-direction: column;
   gap: 4px;
   text-align: center;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .stat-value {
@@ -233,7 +241,7 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .task-header {
@@ -273,7 +281,6 @@
   overflow-y: auto;
 }
 
-/* Scrollbar personalizada */
 .task-list::-webkit-scrollbar       { width: 3px; }
 .task-list::-webkit-scrollbar-track { background: transparent; }
 .task-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
@@ -299,7 +306,7 @@
   font-size: 10px;
   transition: all 0.2s;
 }
-.task-item.done-task .task-check        { background: var(--surface2); border-color: rgba(0,0,0,0.15); }
+.task-item.done-task .task-check        { background: var(--surface2); border-color: var(--text-dim); }
 .task-item.done-task .task-check::after { content: '✓'; color: var(--text-dim); font-size: 11px; }
 
 .task-text {
@@ -327,7 +334,7 @@
   line-height: 1;
 }
 .task-item:hover .task-del { opacity: 1; }
-.task-del:hover             { color: #cc3333; }
+.task-del:hover             { color: #e05555; }
 
 .task-empty {
   text-align: center;
@@ -386,7 +393,7 @@
   z-index: 200;
   transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
   white-space: nowrap;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-lg);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -397,9 +404,9 @@
 
 /* ─── Animações ─────────────────────────────────────────── */
 @keyframes ring-pulse {
-  0%   { filter: drop-shadow(0 2px 16px var(--current-glow)) drop-shadow(0 0 6px var(--current-glow)); }
-  50%  { filter: drop-shadow(0 2px 28px var(--current-glow)) drop-shadow(0 0 12px var(--current-glow)); }
-  100% { filter: drop-shadow(0 2px 16px var(--current-glow)) drop-shadow(0 0 6px var(--current-glow)); }
+  0%   { filter: drop-shadow(0 0 24px var(--current-glow)) drop-shadow(0 0 8px var(--current-glow)); }
+  50%  { filter: drop-shadow(0 0 40px var(--current-glow)) drop-shadow(0 0 16px var(--current-glow)); }
+  100% { filter: drop-shadow(0 0 24px var(--current-glow)) drop-shadow(0 0 8px var(--current-glow)); }
 }
 .ring-svg.running { animation: ring-pulse 2s ease-in-out infinite; }
 

@@ -8,6 +8,7 @@
 
 /** Renderiza toda a UI a partir do estado atual. */
 function renderAll() {
+  applyTheme();
   updateAccent();
   renderTabs();
   renderTimer();
@@ -17,11 +18,61 @@ function renderAll() {
   renderTasks();
 }
 
+// ─── Tema ────────────────────────────────────────────────
+
+/**
+ * Aplica o tema atual ao atributo data-theme do <html>
+ * e sincroniza o ícone do botão de tema.
+ * Chamada ao iniciar e sempre que o tema é trocado.
+ */
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', settings.theme);
+  renderThemeBtn();
+}
+
+/**
+ * Atualiza o ícone do botão de alternância de tema.
+ * ☀️ quando está no modo escuro (próximo tema = claro)
+ * 🌙 quando está no modo claro  (próximo tema = escuro)
+ */
+function renderThemeBtn() {
+  const btn = document.getElementById('themeBtn');
+  if (!btn) return;
+
+  const isDark = settings.theme === 'dark';
+
+  // Ícone sol = tema escuro ativo (clicar vai para claro)
+  btn.innerHTML = isDark
+    ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2">
+         <circle cx="12" cy="12" r="5"/>
+         <line x1="12" y1="1"  x2="12" y2="3"/>
+         <line x1="12" y1="21" x2="12" y2="23"/>
+         <line x1="4.22"  y1="4.22"  x2="5.64"  y2="5.64"/>
+         <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+         <line x1="1"  y1="12" x2="3"  y2="12"/>
+         <line x1="21" y1="12" x2="23" y2="12"/>
+         <line x1="4.22"  y1="19.78" x2="5.64"  y2="18.36"/>
+         <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
+       </svg>`
+    : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2">
+         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+       </svg>`;
+
+  btn.title = isDark ? 'Mudar para tema claro' : 'Mudar para tema escuro';
+}
+
 // ─── Acento de cor ───────────────────────────────────────
 
-/** Atualiza as CSS custom properties de acento conforme o modo. */
+/**
+ * Atualiza as CSS custom properties de acento conforme o modo
+ * E o tema ativo. Usa getAccents() de state.js para ler
+ * a paleta correta do tema atual.
+ */
 function updateAccent() {
-  const { acc, glow } = ACCENTS[state.mode];
+  const accents = getAccents();
+  const { acc, glow } = accents[state.mode];
   document.documentElement.style.setProperty('--current-accent', acc);
   document.documentElement.style.setProperty('--current-glow',   glow);
 }
@@ -45,7 +96,7 @@ function renderTimer() {
 
   document.getElementById('timerDisplay').textContent = disp;
   document.getElementById('timerDisplay').classList.toggle('break', state.mode !== 'work');
-  document.getElementById('timerPhase').textContent   = ACCENTS[state.mode].label;
+  document.getElementById('timerPhase').textContent   = getAccents()[state.mode].label;
   document.getElementById('timerSession').textContent =
     `sessão ${state.session} de ${settings.sessionsPerCycle}`;
 }
@@ -83,7 +134,7 @@ function renderDots() {
   for (let i = 1; i <= settings.sessionsPerCycle; i++) {
     const d = document.createElement('div');
     d.className = 'dot';
-    if (i < state.session)                              d.classList.add('done');
+    if (i < state.session)                                 d.classList.add('done');
     else if (i === state.session && state.mode === 'work') d.classList.add('current');
     el.appendChild(d);
   }
@@ -120,7 +171,7 @@ function renderTasks() {
     const item = document.createElement('div');
     item.className = [
       'task-item',
-      t.done          ? 'done-task'   : '',
+      t.done               ? 'done-task'   : '',
       t.id === activeTaskId ? 'active-task' : ''
     ].filter(Boolean).join(' ');
 
@@ -158,8 +209,8 @@ let toastTimeout = null;
 
 /**
  * Exibe uma notificação toast temporária.
- * @param {string} icon  Emoji ou texto curto
- * @param {string} msg   Mensagem
+ * @param {string} icon
+ * @param {string} msg
  */
 function showToast(icon, msg) {
   const t = document.getElementById('toast');

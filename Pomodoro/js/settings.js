@@ -96,3 +96,21 @@ function notify(title, body) {
     icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><text y="28" font-size="28">🍅</text></svg>'
   });
 }
+
+// ─── Alternância de tema ──────────────────────────────────
+
+/**
+ * Alterna entre tema escuro e claro.
+ * Persiste a escolha, aplica ao DOM e atualiza os acentos
+ * para que as cores injetadas via JS batam com o novo tema.
+ */
+function toggleTheme() {
+  settings.theme = settings.theme === 'dark' ? 'light' : 'dark';
+  applyTheme();
+  updateAccent();
+  savePersisted();
+  showToast(
+    settings.theme === 'light' ? '☀️' : '🌙',
+    settings.theme === 'light' ? 'Tema claro ativado' : 'Tema escuro ativado'
+  );
+}

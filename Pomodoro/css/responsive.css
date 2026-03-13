@@ -56,7 +56,11 @@
 /* ─── Telas muito largas (centraliza tudo) ──────────────── */
 @media (min-width: 768px) {
   body {
-    background-image: radial-gradient(ellipse at 50% 0%, rgba(184,134,11,0.06) 0%, transparent 60%);
+    background-image: radial-gradient(
+      ellipse at 50% 0%,
+      var(--current-glow) 0%,
+      transparent 55%
+    );
   }
 
   .app {

@@ -2,19 +2,47 @@
    base.css — CSS custom properties, reset, layout global
    ========================================================= */
 
-:root {
-  /* Cores de fundo — tema claro */
+/* ─── Tema escuro (padrão) ──────────────────────────────── */
+:root,
+:root[data-theme="dark"] {
+  --bg:       #0d0d0f;
+  --surface:  #161618;
+  --surface2: #1e1e22;
+  --border:   rgba(255,255,255,0.07);
+
+  --text:       #f0ede8;
+  --text-muted: rgba(240,237,232,0.4);
+  --text-dim:   rgba(240,237,232,0.15);
+
+  --accent-work:  #e8c547;
+  --accent-short: #5ce8a4;
+  --accent-long:  #5cb8e8;
+
+  --accent-work-glow:  rgba(232,197,71,0.18);
+  --accent-short-glow: rgba(92,232,164,0.18);
+  --accent-long-glow:  rgba(92,184,232,0.18);
+
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,0.5);
+
+  --noise-opacity: 0.5;
+  --ambient-opacity-min: 0.03;
+  --ambient-opacity-max: 0.06;
+}
+
+/* ─── Tema claro ─────────────────────────────────────────── */
+:root[data-theme="light"] {
   --bg:       #f5f2ee;
   --surface:  #ffffff;
   --surface2: #ede9e3;
   --border:   rgba(0,0,0,0.08);
 
-  /* Texto */
   --text:       #1a1814;
   --text-muted: rgba(26,24,20,0.45);
   --text-dim:   rgba(26,24,20,0.22);
 
-  /* Acentos por modo — mais saturados para contraste no claro */
+  /* Acentos mais saturados/escuros para contraste sobre fundo claro */
   --accent-work:  #b8860b;
   --accent-short: #1a9e68;
   --accent-long:  #1a72b8;
@@ -23,16 +51,24 @@
   --accent-short-glow: rgba(26,158,104,0.10);
   --accent-long-glow:  rgba(26,114,184,0.10);
 
-  /* Acento ativo (sobrescrito via JS) */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.07);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,0.10);
+
+  --noise-opacity: 0.22;
+  --ambient-opacity-min: 0.04;
+  --ambient-opacity-max: 0.08;
+}
+
+/* ─── Token de acento ativo (sobrescrito via JS) ─────────── */
+:root {
   --current-accent: var(--accent-work);
   --current-glow:   var(--accent-work-glow);
 
-  /* Layout */
-  --ring-size:  min(72vw, 340px);
+  --ring-size:   min(72vw, 340px);
   --ring-stroke: 6;
-  --radius:     16px;
+  --radius:      16px;
 
-  /* Tipografia */
   --font-display: 'Fraunces', serif;
   --font-mono:    'DM Mono', monospace;
 }
@@ -59,17 +95,20 @@ body {
   flex-direction: column;
   min-height: 100dvh;
   overflow-x: hidden;
+  /* Transição suave ao trocar tema */
+  transition: background 0.35s ease, color 0.35s ease;
 }
 
-/* ─── Noise overlay — opacidade reduzida no tema claro ── */
+/* ─── Noise overlay ─────────────────────────────────────── */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  opacity: 0.25;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: var(--noise-opacity);
   pointer-events: none;
   z-index: 999;
+  transition: opacity 0.35s ease;
 }
 
 /* ─── Ambient glow ──────────────────────────────────────── */
@@ -83,17 +122,23 @@ body::before {
   max-height: 400px;
   transform: translate(-50%, -60%);
   background: radial-gradient(circle, var(--current-accent) 0%, transparent 70%);
-  opacity: 0.04;
+  opacity: var(--ambient-opacity-min);
   pointer-events: none;
   z-index: 0;
-  transition: background 0.8s;
+  transition: background 0.8s, opacity 0.35s;
   border-radius: 50%;
   animation: ambient-pulse 4s ease-in-out infinite;
 }
 
 @keyframes ambient-pulse {
-  0%, 100% { opacity: 0.04; transform: translate(-50%, -60%) scale(1); }
-  50%       { opacity: 0.08; transform: translate(-50%, -60%) scale(1.1); }
+  0%, 100% {
+    opacity: var(--ambient-opacity-min);
+    transform: translate(-50%, -60%) scale(1);
+  }
+  50% {
+    opacity: var(--ambient-opacity-max);
+    transform: translate(-50%, -60%) scale(1.1);
+  }
 }
 
 /* ─── Top bar ───────────────────────────────────────────── */
@@ -112,7 +157,7 @@ body::before {
   font-style: italic;
   letter-spacing: -0.01em;
   color: var(--text);
-  opacity: 0.75;
+  opacity: 0.8;
 }
 
 .top-actions {

@@ -1,6 +1,12 @@
 # 🍅 Foco — Pomodoro Timer
 
-> An elegant, responsive, dependency-free Pomodoro Timer.
+> An elegant, responsive Pomodoro Timer with light/dark theme support and zero external dependencies.
+
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen?style=flat-square)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)
 
 ---
 
@@ -13,6 +19,7 @@
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Architecture](#architecture)
 - [File Structure](#file-structure)
+- [Theme System](#theme-system)
 - [Design Decisions](#design-decisions)
 - [Customization](#customization)
 - [Browser Compatibility](#browser-compatibility)
@@ -22,7 +29,7 @@
 
 ## About
 
-**Foco** is a Pomodoro Timer built with plain HTML, CSS and JavaScript — no frameworks, no third-party dependencies. The goal was to create a productivity app with a refined user experience, a distinctive visual identity and code organized into cohesive modules.
+**Foco** is a Pomodoro Timer built with plain HTML, CSS and JavaScript — no frameworks, no third-party dependencies. The goal was to create a productivity app with a refined user experience, a distinctive visual identity, full light/dark theme support, and code organized into cohesive modules.
 
 The Pomodoro Technique splits work into focused blocks alternated with short breaks, improving concentration and reducing mental fatigue.
 
@@ -36,6 +43,13 @@ The Pomodoro Technique splits work into focused blocks alternated with short bre
 - Session indicator dots within the current cycle
 - Browser tab title updated with remaining time
 
+### Light / Dark Theme
+- ☀️/🌙 button in the top bar to switch between themes
+- `T` keyboard shortcut for quick toggling
+- Preference persisted in `localStorage` across sessions
+- Smooth CSS transition when switching themes
+- Distinct accent palettes per theme: pastels in dark mode, saturated tones in light mode
+
 ### Automation
 - **Auto-start breaks** — automatically starts the break when focus ends
 - **Auto-start focus** — automatically starts the session when a break ends
@@ -43,25 +57,24 @@ The Pomodoro Technique splits work into focused blocks alternated with short bre
 
 ### Tasks
 - Add, select, complete and delete tasks
-- Active task highlighted with the current mode accent color
+- Active task highlighted with the current mode's accent color
 - Per-task 🍅 counter (how many pomodoros were spent on it)
 - Second click on the active task marks it as done
 
 ### Statistics
 - Pomodoros completed today
 - Total focus time for the day
-- Accumulated pomodoro streak
+- Accumulated daily streak (resets automatically if broken)
 
 ### History
 - Full log of all completed sessions
 - Grouped by date, in reverse chronological order
-- Displays time and duration of each session
 - Persists across visits via `localStorage`
 
 ### Sound
 - Sound effects generated via the **Web Audio API** (no external files)
-- Ascending chord played at the end of each focus session
-- Two soft tones played at the end of each break
+- Ascending chord at the end of each focus session
+- Two soft tones at the end of each break
 - Toggle button with visual feedback
 
 ### Notifications
@@ -78,12 +91,10 @@ The Pomodoro Technique splits work into focused blocks alternated with short bre
 - Notifications (toggle)
 
 ### UX & Accessibility
-- **Wake Lock API** — prevents the screen from sleeping while the timer is running
+- **Wake Lock API** — prevents the screen from sleeping while the timer runs
 - Fully responsive for mobile, tablet and desktop
-- Large, legible display font for the timer
 - Pulse animation on the ring during active sessions
 - Toast feedback for all important actions
-- Distinct accent colors per mode (yellow / green / blue)
 
 ---
 
@@ -104,21 +115,23 @@ python3 -m http.server 8080
 1. **Download** or clone the repository
 2. Open `index.html` in your browser
 3. Click **▶** or press `Space` to start
-4. Add tasks in the bottom panel to track your focus
-5. Adjust durations and behaviour in ⚙️ **Settings**
+4. Use the ☀️/🌙 button in the top bar to switch themes (or press `T`)
+5. Add tasks in the bottom panel to track your focus
+6. Adjust durations and behaviour in ⚙️ **Settings**
 
 ---
 
 ## Keyboard Shortcuts
 
-| Key      | Action                          |
-|----------|---------------------------------|
-| `Space`  | Play / Pause                    |
-| `R`      | Reset the timer                 |
-| `S`      | Skip to the next session        |
-| `1`      | Switch to Focus mode            |
-| `2`      | Switch to Short Break           |
-| `3`      | Switch to Long Break            |
+| Key     | Action                          |
+|---------|---------------------------------|
+| `Space` | Play / Pause                    |
+| `R`     | Reset the timer                 |
+| `S`     | Skip to the next session        |
+| `T`     | Toggle light / dark theme       |
+| `1`     | Switch to Focus mode            |
+| `2`     | Switch to Short Break           |
+| `3`     | Switch to Long Break            |
 
 > Shortcuts are disabled when a text input is focused.
 
@@ -126,7 +139,7 @@ python3 -m http.server 8080
 
 ## Architecture
 
-The project uses a **flat modular architecture** — each JavaScript file has a single, well-defined responsibility. Global state is shared via `window`-scoped variables (instead of ES6 modules) to keep full compatibility with direct `file://` loading, requiring no server or bundler.
+The project uses a **flat modular architecture** — each JavaScript file has a single, well-defined responsibility. Global state is shared via `window`-scoped variables (instead of ES6 modules) to maintain full compatibility with direct `file://` loading, requiring no server or bundler.
 
 ### Data flow
 
@@ -148,15 +161,15 @@ timer.js / tasks.js / settings.js   ← business logic
 
 ### Script loading order
 
-The order of `<script>` tags in `index.html` is intentional and ensures each module finds its dependencies already loaded:
+The order of `<script>` tags in `index.html` is intentional — each module finds its dependencies already loaded:
 
 ```
-state.js      ← 1st — global variables and constants
+state.js      ← 1st — variables, constants, ACCENT_PALETTES, getAccents()
 timer.js      ← 2nd — uses getDuration, renderTimer, renderRing
 tasks.js      ← 3rd — uses savePersisted, renderTasks, showToast
 sound.js      ← 4th — uses showToast
-ui.js         ← 5th — uses ACCENTS, settings, state, tasks
-settings.js   ← 6th — uses renderDots, renderTimer, renderRing, getDuration
+ui.js         ← 5th — uses getAccents(), applyTheme(), settings, state, tasks
+settings.js   ← 6th — uses renderDots, renderTimer, applyTheme, toggleTheme()
 modals.js     ← 7th — uses renderSettingsUI, escHtml, history
 app.js        ← 8th — entry point; calls init()
 ```
@@ -167,123 +180,179 @@ app.js        ← 8th — entry point; calls init()
 
 ```
 foco/
-├── index.html               ← Full HTML markup + script/style imports
+├── index.html               ← HTML markup + imports + theme button (☀️/🌙)
 │
 ├── css/
-│   ├── base.css             ← Custom properties, reset, root layout
+│   ├── base.css             ← Per-theme tokens (data-theme), reset, layout
 │   ├── components.css       ← Timer, buttons, tabs, tasks, stats, toast
 │   ├── modals.css           ← Settings and history modals
 │   └── responsive.css       ← Media queries (mobile / tablet / desktop)
 │
 ├── js/
-│   ├── state.js             ← Global state, constants, localStorage
+│   ├── state.js             ← Global state, ACCENT_PALETTES, getAccents(), localStorage
 │   ├── timer.js             ← Timer logic and session cycles
 │   ├── tasks.js             ← Task CRUD
 │   ├── sound.js             ← Web Audio API and sound control
-│   ├── ui.js                ← All DOM rendering functions
-│   ├── settings.js          ← Settings controls and native notifications
+│   ├── ui.js                ← All rendering + applyTheme() + renderThemeBtn()
+│   ├── settings.js          ← Settings controls, notifications and toggleTheme()
 │   ├── modals.js            ← Modal control and history rendering
-│   └── app.js               ← App initialization and keyboard shortcuts
+│   └── app.js               ← App init and keyboard shortcuts (incl. T)
 │
 ├── README.pt-BR.md          ← Portuguese version
 └── README.md                ← This file
 ```
 
-### File responsibilities
+---
 
-#### `css/base.css`
-Defines all **CSS custom properties** (design tokens: colours, typography, spacing), the global reset and the base layout structure (topbar + main container). Imported first; it is the foundation for all other styles.
+## Theme System
 
-#### `css/components.css`
-Contains styles for all **visual components**: SVG ring, control buttons, mode tabs, stat cards, task panel and toast. Also includes all keyframe animations (`ring-pulse`, `shimmer`, `flash-anim`).
+### How it works
 
-#### `css/modals.css`
-Styles exclusive to **bottom sheets**: blurred overlay, slide-in animation, numeric inputs, toggles and the history list.
+Theme switching is driven by **a single HTML attribute** on the root element:
 
-#### `css/responsive.css`
-Consolidates all **media queries**. Adjusts ring size, typography, spacing and component visibility based on viewport width and height.
+```html
+<html data-theme="dark">   <!-- or "light" -->
+```
 
-#### `js/state.js`
-The **single source of truth**. Declares `settings`, `state`, `tasks`, `history` and `activeTaskId`. Contains persistence helpers (`loadPersisted`, `savePersisted`, `checkDate`) and the `getDuration` utility. Contains no business logic.
+No extra classes on `<body>`, no separate CSS files per theme. Every component uses only custom properties — no color value is hardcoded outside `base.css`.
 
-#### `js/timer.js`
-Manages the **timer lifecycle**: start, pause, stop, reset, skip, tick and session completion. Decides which mode comes next and triggers sound, notification and stats update at the end of each session. Also controls the Wake Lock.
+### CSS — `base.css`
 
-#### `js/tasks.js`
-Full task CRUD: add, select/complete (toggle), delete. Controls input visibility and the active task. Contains the `escHtml` utility to prevent XSS.
+Two token blocks, one per theme:
 
-#### `js/sound.js`
-Encapsulates the **Web Audio API**: lazy `AudioContext` initialisation, the `playTone` primitive and named sound compositions (`complete`, `break_end`). Manages the `soundEnabled` state and the sound button icon.
+```css
+:root[data-theme="dark"] {
+  --bg:          #0d0d0f;
+  --surface:     #161618;
+  --text:        #f0ede8;
+  --accent-work: #e8c547;  /* soft yellow */
+  /* ... */
+}
 
-#### `js/ui.js`
-Responsible for **all DOM writes**. Functions: `renderAll`, `updateAccent`, `renderTabs`, `renderTimer`, `updateTitle`, `renderRing`, `renderDots`, `renderStats`, `renderTasks`, `setPlayIcon` and `showToast`. Never decides — only receives state and updates the screen.
+:root[data-theme="light"] {
+  --bg:          #f5f2ee;
+  --surface:     #ffffff;
+  --text:        #1a1814;
+  --accent-work: #b8860b;  /* saturated amber */
+  /* ... */
+}
+```
 
-#### `js/settings.js`
-Manages **settings controls**: increment/decrement of numeric values within defined limits, boolean toggles, modal UI synchronisation and integration with the browser Notifications API.
+Each theme also defines shadow tokens (`--shadow-sm/md/lg`) and noise overlay opacity (`--noise-opacity`), which behave differently across themes.
 
-#### `js/modals.js`
-Controls opening, closing and dynamic rendering of both modals (settings and history). Groups history sessions by date and displays them in reverse chronological order.
+### JS — `state.js` and `ui.js`
 
-#### `js/app.js`
-The application **entry point**. Calls `init()` (which runs `loadPersisted` → `checkDate` → `renderAll`), registers keyboard listeners and the `visibilitychange` listener for tab title updates.
+The SVG ring and play button receive colors injected by JS (`--current-accent`, `--current-glow`). For this reason `state.js` keeps `ACCENT_PALETTES` with both palettes mirroring the CSS, and `getAccents()` returns the right one based on `settings.theme`:
+
+```js
+// state.js
+const ACCENT_PALETTES = {
+  dark:  { work: { acc: '#e8c547', glow: 'rgba(232,197,71,0.18)',  label: 'Focus' }, /* ... */ },
+  light: { work: { acc: '#b8860b', glow: 'rgba(184,134,11,0.10)',  label: 'Focus' }, /* ... */ }
+};
+
+function getAccents() {
+  return ACCENT_PALETTES[settings.theme] || ACCENT_PALETTES.dark;
+}
+```
+
+```js
+// ui.js — updateAccent reads from getAccents(), not a fixed palette
+function updateAccent() {
+  const { acc, glow } = getAccents()[state.mode];
+  document.documentElement.style.setProperty('--current-accent', acc);
+  document.documentElement.style.setProperty('--current-glow',   glow);
+}
+```
+
+### Why are accents different per theme?
+
+In dark mode, pastel accents (`#e8c547`) read well against a black background. In light mode, those same pastels disappear against a white/cream background. The light theme uses more saturated, darker versions of the same hues:
+
+| Mode        | Dark        | Light       |
+|-------------|-------------|-------------|
+| Focus       | `#e8c547`   | `#b8860b`   |
+| Short Break | `#5ce8a4`   | `#1a9e68`   |
+| Long Break  | `#5cb8e8`   | `#1a72b8`   |
+
+### Full theme-switch flow
+
+```
+Click ☀️/🌙 button  (or press T)
+        │
+        ▼
+  toggleTheme()          — settings.js
+  settings.theme = 'light' | 'dark'
+        │
+        ├─► applyTheme()     — ui.js
+        │   └─ setAttribute('data-theme', ...)
+        │      └─ CSS reacts: all tokens swap instantly
+        │      └─ renderThemeBtn() — updates ☀️/🌙 icon
+        │
+        ├─► updateAccent()   — ui.js
+        │   └─ getAccents()[state.mode] → new JS palette
+        │      └─ --current-accent and --current-glow updated
+        │
+        ├─► savePersisted()  — state.js
+        │   └─ settings.theme saved to localStorage
+        │
+        └─► showToast()      — ui.js
+            └─ visual feedback to the user
+```
 
 ---
 
 ## Design Decisions
 
+**Why `data-theme` on `<html>` instead of a class on `<body>`?**
+`:root` always points to `<html>`. Using `data-theme` on the root element allows `:root[data-theme="dark"]` selectors without extra specificity, and makes future integration with `@media (prefers-color-scheme)` straightforward.
+
 **Why no ES6 modules (`import`/`export`)?**
-So that `index.html` can be opened directly via `file://` in any browser without a server or bundler. ES6 modules require an HTTP server.
+So that `index.html` can be opened directly via `file://` in any browser without a server or bundler. ES6 modules require HTTP.
+
+**Why keep `ACCENT_PALETTES` in JS instead of reading CSS variables?**
+`getComputedStyle` reads CSS variables but depends on when the browser has finished calculating styles, creating a timing dependency. Keeping the colors mirrored in JS is predictable and testable.
 
 **Why does `state.js` contain no business logic?**
 So that any module can read and write state without creating circular dependencies. Logic lives in domain modules (`timer`, `tasks`, `settings`); state is just data.
-
-**Why is `ui.js` separate from `timer.js`?**
-It separates *what to do* (timer) from *how to show it* (ui). If the project migrates to a framework in the future, `timer.js` can be reused without changes.
-
-**Why Web Audio API instead of `.mp3` files?**
-Eliminates external asset dependencies, works offline and allows precise frequency and volume control programmatically.
 
 ---
 
 ## Customization
 
-### Change default durations
-In `js/state.js`, edit the `settings` object:
+### Add a third theme
 
-```js
-let settings = {
-  workMins:        25,   // focus minutes
-  shortMins:        5,   // short break
-  longMins:        15,   // long break
-  sessionsPerCycle: 4    // sessions before a long break
-};
-```
-
-### Change accent colours
-In `css/base.css`, edit the custom properties:
-
+In `css/base.css`:
 ```css
-:root {
-  --accent-work:  #e8c547;   /* yellow — focus mode  */
-  --accent-short: #5ce8a4;   /* green  — short break */
-  --accent-long:  #5cb8e8;   /* blue   — long break  */
+:root[data-theme="sepia"] {
+  --bg:      #f4efe6;
+  --surface: #fffdf9;
+  /* ... */
 }
 ```
 
+In `js/state.js`, add the palette to `ACCENT_PALETTES` and update the `_sanitizeSettings` validation to accept the new value.
+
+### Change colors in an existing theme
+
+Edit the tokens in `css/base.css` **and** mirror the same colors in `ACCENT_PALETTES` in `js/state.js`. Both must stay in sync.
+
 ### Change the font
-Replace the Google Fonts link in the `<head>` of `index.html` and update the `--font-display` and `--font-mono` variables in `css/base.css`.
+
+Replace the Google Fonts link in the `<head>` of `index.html` and update `--font-display` / `--font-mono` in `css/base.css`.
 
 ---
 
 ## Browser Compatibility
 
-| Feature              | Minimum browser                    |
-|----------------------|------------------------------------|
-| CSS custom props     | Chrome 49 / Firefox 31 / Safari 9  |
-| Web Audio API        | Chrome 35 / Firefox 25 / Safari 8  |
-| Wake Lock API        | Chrome 84 / Edge 84 *(optional)*   |
-| Notifications API    | Chrome 22 / Firefox 22 *(optional)*|
-| `100dvh`             | Chrome 108 / Safari 15.4           |
+| Feature               | Minimum browser                     |
+|-----------------------|-------------------------------------|
+| CSS custom properties | Chrome 49 / Firefox 31 / Safari 9   |
+| `data-theme` CSS      | All modern browsers                 |
+| Web Audio API         | Chrome 35 / Firefox 25 / Safari 8   |
+| Wake Lock API         | Chrome 84 / Edge 84 *(optional)*    |
+| Notifications API     | Chrome 22 / Firefox 22 *(optional)* |
+| `100dvh`              | Chrome 108 / Safari 15.4            |
 
 > The app works normally without Wake Lock and Notifications — both features degrade gracefully.
 
