@@ -1,0 +1,70 @@
+/* =========================================================
+   responsive.css — Media queries e ajustes por viewport
+   ========================================================= */
+
+/* ─── Telas pequenas (altura reduzida) ──────────────────── */
+@media (max-height: 640px) {
+  :root {
+    --ring-size: min(55vw, 240px);
+  }
+
+  .timer-display {
+    font-size: clamp(2.2rem, 13vw, 4rem);
+  }
+
+  .app {
+    gap: 14px;
+  }
+
+  /* Oculta o painel de tarefas para liberar espaço vertical */
+  .task-panel {
+    display: none;
+  }
+}
+
+/* ─── Altura confortável ────────────────────────────────── */
+@media (min-height: 700px) {
+  .app {
+    gap: 22px;
+  }
+}
+
+/* ─── Tablets e desktop ─────────────────────────────────── */
+@media (min-width: 480px) {
+  .topbar {
+    padding: 24px 32px 0;
+  }
+
+  .app {
+    padding: 20px 32px 32px;
+  }
+
+  .play-btn {
+    width: 80px;
+    height: 80px;
+    font-size: 30px;
+    border-radius: 24px;
+  }
+
+  .ctrl-btn {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+  }
+}
+
+/* ─── Telas muito largas (centraliza tudo) ──────────────── */
+@media (min-width: 768px) {
+  body {
+    background-image: radial-gradient(ellipse at 50% 0%, rgba(232,197,71,0.04) 0%, transparent 60%);
+  }
+
+  .app {
+    max-width: 520px;
+    padding: 28px 40px 40px;
+  }
+
+  .mode-tab {
+    font-size: 0.75rem;
+  }
+}

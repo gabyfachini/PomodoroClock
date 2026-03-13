@@ -1,0 +1,135 @@
+/* =========================================================
+   base.css — CSS custom properties, reset, layout global
+   ========================================================= */
+
+:root {
+  /* Cores de fundo */
+  --bg:       #0d0d0f;
+  --surface:  #161618;
+  --surface2: #1e1e22;
+  --border:   rgba(255,255,255,0.07);
+
+  /* Texto */
+  --text:       #f0ede8;
+  --text-muted: rgba(240,237,232,0.4);
+  --text-dim:   rgba(240,237,232,0.15);
+
+  /* Acentos por modo */
+  --accent-work:  #e8c547;
+  --accent-short: #5ce8a4;
+  --accent-long:  #5cb8e8;
+
+  --accent-work-glow:  rgba(232,197,71,0.18);
+  --accent-short-glow: rgba(92,232,164,0.18);
+  --accent-long-glow:  rgba(92,184,232,0.18);
+
+  /* Acento ativo (sobrescrito via JS) */
+  --current-accent: var(--accent-work);
+  --current-glow:   var(--accent-work-glow);
+
+  /* Layout */
+  --ring-size:  min(72vw, 340px);
+  --ring-stroke: 6;
+  --radius:     16px;
+
+  /* Tipografia */
+  --font-display: 'Fraunces', serif;
+  --font-mono:    'DM Mono', monospace;
+}
+
+/* ─── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* ─── Noise overlay ─────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* ─── Ambient glow ──────────────────────────────────────── */
+.ambient {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 60vw;
+  height: 60vw;
+  max-width: 400px;
+  max-height: 400px;
+  transform: translate(-50%, -60%);
+  background: radial-gradient(circle, var(--current-accent) 0%, transparent 70%);
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+  transition: background 0.8s;
+  border-radius: 50%;
+  animation: ambient-pulse 4s ease-in-out infinite;
+}
+
+@keyframes ambient-pulse {
+  0%, 100% { opacity: 0.03; transform: translate(-50%, -60%) scale(1); }
+  50%       { opacity: 0.06; transform: translate(-50%, -60%) scale(1.1); }
+}
+
+/* ─── Top bar ───────────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px 0;
+  flex-shrink: 0;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  opacity: 0.85;
+}
+
+.top-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ─── Main app container ─────────────────────────────────── */
+.app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 20px 24px;
+  gap: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+}
