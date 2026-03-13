@@ -3,25 +3,25 @@
    ========================================================= */
 
 :root {
-  /* Cores de fundo */
-  --bg:       #0d0d0f;
-  --surface:  #161618;
-  --surface2: #1e1e22;
-  --border:   rgba(255,255,255,0.07);
+  /* Cores de fundo — tema claro */
+  --bg:       #f5f2ee;
+  --surface:  #ffffff;
+  --surface2: #ede9e3;
+  --border:   rgba(0,0,0,0.08);
 
   /* Texto */
-  --text:       #f0ede8;
-  --text-muted: rgba(240,237,232,0.4);
-  --text-dim:   rgba(240,237,232,0.15);
+  --text:       #1a1814;
+  --text-muted: rgba(26,24,20,0.45);
+  --text-dim:   rgba(26,24,20,0.22);
 
-  /* Acentos por modo */
-  --accent-work:  #e8c547;
-  --accent-short: #5ce8a4;
-  --accent-long:  #5cb8e8;
+  /* Acentos por modo — mais saturados para contraste no claro */
+  --accent-work:  #b8860b;
+  --accent-short: #1a9e68;
+  --accent-long:  #1a72b8;
 
-  --accent-work-glow:  rgba(232,197,71,0.18);
-  --accent-short-glow: rgba(92,232,164,0.18);
-  --accent-long-glow:  rgba(92,184,232,0.18);
+  --accent-work-glow:  rgba(184,134,11,0.10);
+  --accent-short-glow: rgba(26,158,104,0.10);
+  --accent-long-glow:  rgba(26,114,184,0.10);
 
   /* Acento ativo (sobrescrito via JS) */
   --current-accent: var(--accent-work);
@@ -61,13 +61,13 @@ body {
   overflow-x: hidden;
 }
 
-/* ─── Noise overlay ─────────────────────────────────────── */
+/* ─── Noise overlay — opacidade reduzida no tema claro ── */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity: 0.25;
   pointer-events: none;
   z-index: 999;
 }
@@ -83,7 +83,7 @@ body::before {
   max-height: 400px;
   transform: translate(-50%, -60%);
   background: radial-gradient(circle, var(--current-accent) 0%, transparent 70%);
-  opacity: 0.03;
+  opacity: 0.04;
   pointer-events: none;
   z-index: 0;
   transition: background 0.8s;
@@ -92,8 +92,8 @@ body::before {
 }
 
 @keyframes ambient-pulse {
-  0%, 100% { opacity: 0.03; transform: translate(-50%, -60%) scale(1); }
-  50%       { opacity: 0.06; transform: translate(-50%, -60%) scale(1.1); }
+  0%, 100% { opacity: 0.04; transform: translate(-50%, -60%) scale(1); }
+  50%       { opacity: 0.08; transform: translate(-50%, -60%) scale(1.1); }
 }
 
 /* ─── Top bar ───────────────────────────────────────────── */
@@ -112,7 +112,7 @@ body::before {
   font-style: italic;
   letter-spacing: -0.01em;
   color: var(--text);
-  opacity: 0.85;
+  opacity: 0.75;
 }
 
 .top-actions {

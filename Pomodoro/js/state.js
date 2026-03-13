@@ -52,9 +52,9 @@ let activeTaskId = null;
 
 // ─── Mapa de acentos por modo ────────────────────────────
 const ACCENTS = {
-  work:  { acc: '#e8c547', glow: 'rgba(232,197,71,0.18)',  label: 'Foco'        },
-  short: { acc: '#5ce8a4', glow: 'rgba(92,232,164,0.18)',  label: 'Pausa Curta' },
-  long:  { acc: '#5cb8e8', glow: 'rgba(92,184,232,0.18)',  label: 'Pausa Longa' }
+  work:  { acc: '#b8860b', glow: 'rgba(184,134,11,0.10)',  label: 'Foco'        },
+  short: { acc: '#1a9e68', glow: 'rgba(26,158,104,0.10)',  label: 'Pausa Curta' },
+  long:  { acc: '#1a72b8', glow: 'rgba(26,114,184,0.10)',  label: 'Pausa Longa' }
 };
 
 // ─── Limites das configurações numéricas ─────────────────
