@@ -81,7 +81,11 @@ function selectTask(id) {
  */
 function deleteTask(id, e) {
   e.stopPropagation();
-  tasks = tasks.filter(t => t.id !== id);
+
+  // Muta in-place com splice para não quebrar referências externas ao array
+  // (FIX: antes usava tasks = tasks.filter(...) que reatribuía a variável)
+  const idx = tasks.findIndex(t => t.id === id);
+  if (idx !== -1) tasks.splice(idx, 1);
 
   if (activeTaskId === id) {
     const next = tasks.find(t => !t.done);
